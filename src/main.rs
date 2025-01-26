@@ -13,13 +13,17 @@ fn main() {
         let mut input = String::new();
         io::stdin().read_line(&mut input)
         .expect("Error reading input");
-
+        input = input.trim_end().to_string();
         println!("{:?}", input);
         //TODO: add entries in Map/dictionary
         let mut _splitted: &Vec<String> = &input.splitn(2," ").map(|s| s.to_string()).collect();
         println!("{:?}", _splitted);
+        if _splitted.len() == 1{
+            opened_maps.remove(&input);
+        } else {
         opened_maps.insert(_splitted[0].clone(), _splitted[1].clone());
-        println!("{:?}",opened_maps);
+    }
+    println!("{:?}",opened_maps);
         if input.trim() == "end" {
             println!("See ya!");
             break;
@@ -28,3 +32,4 @@ fn main() {
 }
 // Yak T'el ( 16.6  , 12.4 )
 // Yak T'el ( 12.3  , 12.3 )
+//assumption after testing is 2.6 per 1.0 grid
