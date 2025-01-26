@@ -6,9 +6,10 @@ fn main() {
     let mut opened_maps:HashMap<String, String> = HashMap::new();
     //TODO: set up fix tp location
     loop {
-        println!("Remember you can right click to the prompt to paste your latest copy entry");
+        println!("You can right click to the prompt to paste your latest copy entry");
         println!("Add person's coordinates. E.g. Kay Memoryland(17.5 , 46.3)");
         println!("Delete by typing just the name. E.g. Kay");
+        println!("Entries are case sensitive");
         //TODO: decide when and where the node calculation should be
         let mut input = String::new();
         io::stdin().read_line(&mut input)
