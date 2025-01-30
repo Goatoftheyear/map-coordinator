@@ -1,16 +1,17 @@
 use std::collections::HashMap;
+use std::f32::INFINITY;
 use std::fs::File;
 use std::io;
 use std::io::BufRead;
 use std::path::Path;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 struct Node {
     owner: String,
     x: f32,
     y: f32,
 }
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 struct Edge<'a> {
     node1: &'a Node,
     node2: &'a Node,
@@ -53,7 +54,6 @@ fn creating_edge<'a>(
             + (starting_node.y - ending_node.y).powf(2.0))
         .sqrt();
     }
-    println!("{}", distance);
     // Edge {
     //     node1: starting_node,
     //     node2: ending_node,
@@ -65,7 +65,28 @@ fn creating_edge<'a>(
         weight: distance,
     })
 }
+fn recursion_permutation(
+    index: usize,
+    players: &mut Vec<String>,
+    permutations: &mut Vec<Vec<String>>,
+) -> () {
+    if index == players.len() {
+        permutations.push(players.clone());
+        return;
+    }
+    for i in index..players.len() {
+        players.swap(index, i);
+        recursion_permutation(index + 1, players, permutations);
+        players.swap(index, i);
+    }
+}
+fn find_permutation(mut players: Vec<String>) -> Vec<Vec<String>> {
+    let mut permutations = Vec::<Vec<String>>::new();
 
+    recursion_permutation(0, &mut players, &mut permutations);
+
+    permutations
+}
 fn main() {
     println!("Hello!");
     let mut opened_maps: HashMap<String, Vec<Node>> = HashMap::new();
@@ -108,7 +129,7 @@ fn main() {
             .read_line(&mut input)
             .expect("Error reading input");
         input = input.trim_end().to_string();
-        println!("{:?}", input);
+        // println!("{:?}", input);
         if input.trim() == "end" {
             println!("See ya!");
             break;
@@ -120,7 +141,7 @@ fn main() {
         } else {
             let coordinates_with_name: Vec<String> =
                 _splitted[1].split("(").map(|s| s.to_string()).collect();
-            println!("{:?}", coordinates_with_name);
+            // println!("{:?}", coordinates_with_name);
             let node = parse_to_node(
                 coordinates_with_name[1].replace(" ", "").clone(),
                 _splitted[0].clone(),
@@ -134,29 +155,86 @@ fn main() {
             println!("{:?}", tp_coord);
             opened_maps.insert(coordinates_with_name[0].clone(), tp_coord);
         }
-        println!("{opened_maps:?}");
-        println!("{player_maps:?}");
+        // println!("{opened_maps:?}");
+        // println!("{player_maps:?}");
 
         // create edges
         let mut edge_list: Vec<Edge> = Vec::new();
+        let mut starting_edge_list: Vec<Edge> = Vec::new();
         if let (Some(default_nodes), Some(maps)) = (
             teleport_locations.get("Memoryland"),
             opened_maps.get("Memoryland"),
         ) {
-            println!("{:?}", default_nodes);
-            println!("{:?}", maps);
+            // println!("{:?}", default_nodes);
+            // println!("{:?}", maps);
             for map in maps {
                 for default_node in default_nodes {
-                    creating_edge(default_node, map, false, &mut edge_list);
-                    creating_edge(default_node, map, true, &mut edge_list);
+                    creating_edge(default_node, map, false, &mut starting_edge_list);
+                    creating_edge(map, default_node, true, &mut edge_list);
                 }
                 for other_map in maps {
                     if map.owner != other_map.owner {
                         creating_edge(map, other_map, false, &mut edge_list);
+                        creating_edge(other_map, map, false, &mut edge_list);
                     }
                 }
             }
-            println!("{:?}", edge_list);
+            println!("{:?}", starting_edge_list);
+
+            let test = player_maps.keys().map(|s| s.to_string()).collect();
+            let all_permutation = find_permutation(test);
+            //TODO: use these permutations then move around the edges
+            // idea default -> 1st -> 2nd -> 3rd -> 4th
+            // e.g. start default to 1st -> start 1st to 2nd ... -> from 2nd last -> last
+            // reason for index equal -1 due to have to start without the player and
+            // and use index + 1 to cancel the loop
+            let mut total_weight: Vec<f32> = Vec::new();
+            // let mut lowest_weight_index = 0;
+            let mut lowest_weight: f32 = INFINITY;
+            let mut start_point: &Node = &default_nodes[0];
+            let mut fastest_path: &Vec<String> = &all_permutation[0];
+            for node in default_nodes {
+                for (i, entry) in all_permutation.iter().enumerate() {
+                    let mut index = 0;
+                    let mut weight = 0.0;
+                    while index < entry.len() {
+                        let end = entry[index].clone();
+                        if index == 0 {
+                            for edge in &edge_list {
+                                if edge.node1 == node && edge.node2.owner == end {
+                                    weight += edge.weight;
+                                    break;
+                                }
+                            }
+                        } else {
+                            let start = entry[index - 1].clone();
+                            for edge in &edge_list {
+                                if edge.node1.owner == start && edge.node2.owner == end {
+                                    weight += edge.weight;
+                                    break;
+                                }
+                            }
+                        }
+
+                        index += 1;
+                    }
+                    if weight < lowest_weight {
+                        lowest_weight = weight;
+                        // lowest_weight_index = i;
+                        start_point = node;
+                        fastest_path = entry;
+                    }
+                    total_weight.push(weight);
+                }
+            }
+            println!("****************");
+            println!("order to go");
+            println!("start at");
+            println!("{start_point:?}");
+            for player in fastest_path {
+                println!("{}", player);
+            }
+            println!("****************");
         }
     }
 }
