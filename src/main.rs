@@ -82,7 +82,6 @@ fn recursion_permutation(
 }
 fn find_permutation(mut players: Vec<String>) -> Vec<Vec<String>> {
     let mut permutations = Vec::<Vec<String>>::new();
-
     recursion_permutation(0, &mut players, &mut permutations);
 
     permutations
@@ -155,86 +154,87 @@ fn main() {
             println!("{:?}", tp_coord);
             opened_maps.insert(coordinates_with_name[0].clone(), tp_coord);
         }
-        // println!("{opened_maps:?}");
-        // println!("{player_maps:?}");
 
-        // create edges
-        let mut edge_list: Vec<Edge> = Vec::new();
-        let mut starting_edge_list: Vec<Edge> = Vec::new();
-        if let (Some(default_nodes), Some(maps)) = (
-            teleport_locations.get("Memoryland"),
-            opened_maps.get("Memoryland"),
-        ) {
-            // println!("{:?}", default_nodes);
-            // println!("{:?}", maps);
-            for map in maps {
-                for default_node in default_nodes {
-                    creating_edge(default_node, map, false, &mut starting_edge_list);
-                    creating_edge(map, default_node, true, &mut edge_list);
-                }
-                for other_map in maps {
-                    if map.owner != other_map.owner {
-                        creating_edge(map, other_map, false, &mut edge_list);
-                        creating_edge(other_map, map, false, &mut edge_list);
-                    }
-                }
-            }
-            println!("{:?}", starting_edge_list);
-
-            let test = player_maps.keys().map(|s| s.to_string()).collect();
-            let all_permutation = find_permutation(test);
-            //TODO: use these permutations then move around the edges
-            // idea default -> 1st -> 2nd -> 3rd -> 4th
-            // e.g. start default to 1st -> start 1st to 2nd ... -> from 2nd last -> last
-            // reason for index equal -1 due to have to start without the player and
-            // and use index + 1 to cancel the loop
+        for place in opened_maps.keys().collect::<Vec<&String>>() {
+            // reset for each map
             let mut total_weight: Vec<f32> = Vec::new();
-            // let mut lowest_weight_index = 0;
             let mut lowest_weight: f32 = INFINITY;
-            let mut start_point: &Node = &default_nodes[0];
-            let mut fastest_path: &Vec<String> = &all_permutation[0];
-            for node in default_nodes {
-                for (i, entry) in all_permutation.iter().enumerate() {
-                    let mut index = 0;
-                    let mut weight = 0.0;
-                    while index < entry.len() {
-                        let end = entry[index].clone();
-                        if index == 0 {
-                            for edge in &edge_list {
-                                if edge.node1 == node && edge.node2.owner == end {
-                                    weight += edge.weight;
-                                    break;
-                                }
-                            }
-                        } else {
-                            let start = entry[index - 1].clone();
-                            for edge in &edge_list {
-                                if edge.node1.owner == start && edge.node2.owner == end {
-                                    weight += edge.weight;
-                                    break;
-                                }
-                            }
-                        }
-
-                        index += 1;
-                    }
-                    if weight < lowest_weight {
-                        lowest_weight = weight;
-                        // lowest_weight_index = i;
-                        start_point = node;
-                        fastest_path = entry;
-                    }
-                    total_weight.push(weight);
+            let mut edge_list: Vec<Edge> = Vec::new();
+            let mut starting_edge_list: Vec<Edge> = Vec::new();
+            if let (Some(default_nodes), Some(maps)) =
+                (teleport_locations.get(place), opened_maps.get(place))
+            {
+                let mut current_player_map = Vec::new();
+                for map in maps.clone() {
+                    current_player_map.push(map.owner);
                 }
+                // create edges
+                for map in maps {
+                    for default_node in default_nodes {
+                        creating_edge(default_node, map, false, &mut starting_edge_list);
+                        creating_edge(map, default_node, true, &mut edge_list);
+                    }
+                    for other_map in maps {
+                        if map.owner != other_map.owner {
+                            creating_edge(map, other_map, false, &mut edge_list);
+                            creating_edge(other_map, map, false, &mut edge_list);
+                        }
+                    }
+                }
+                // println!("{:?}", starting_edge_list);
+                //TODO: problem lies below this line
+                let all_permutation = find_permutation(current_player_map);
+                //TODO: use these permutations then move around the edges
+                // idea default -> 1st -> 2nd -> 3rd -> 4th
+                // e.g. start default to 1st -> start 1st to 2nd ... -> from 2nd last -> last
+                // reason for index equal -1 due to have to start without the player and
+                // and use index + 1 to cancel the loop
+                let mut start_point: &Node = &default_nodes[0];
+                let mut fastest_path: &Vec<String> = &all_permutation[0];
+                //TODO: check if tp back is faster
+                for node in default_nodes {
+                    for (i, entry) in all_permutation.iter().enumerate() {
+                        let mut index = 0;
+                        let mut weight = 0.0;
+                        while index < entry.len() {
+                            let end = entry[index].clone();
+                            if index == 0 {
+                                for edge in &edge_list {
+                                    if edge.node1 == node && edge.node2.owner == end {
+                                        weight += edge.weight;
+                                        break;
+                                    }
+                                }
+                            } else {
+                                let start = entry[index - 1].clone();
+                                for edge in &edge_list {
+                                    if edge.node1.owner == start && edge.node2.owner == end {
+                                        weight += edge.weight;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            index += 1;
+                        }
+                        if weight < lowest_weight {
+                            lowest_weight = weight;
+                            // lowest_weight_index = i;
+                            start_point = node;
+                            fastest_path = entry;
+                        }
+                        total_weight.push(weight);
+                    }
+                }
+                println!("****************");
+                println!("order to go for {}", place);
+                println!("start at");
+                println!("{start_point:?}");
+                for player in fastest_path {
+                    println!("{}", player);
+                }
+                println!("****************");
             }
-            println!("****************");
-            println!("order to go");
-            println!("start at");
-            println!("{start_point:?}");
-            for player in fastest_path {
-                println!("{}", player);
-            }
-            println!("****************");
         }
     }
 }
