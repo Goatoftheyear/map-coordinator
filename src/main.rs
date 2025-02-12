@@ -189,13 +189,19 @@ fn main() {
                 // e.g. start default to 1st -> start 1st to 2nd ... -> from 2nd last -> last
                 // reason for index equal -1 due to have to start without the player and
                 // and use index + 1 to cancel the loop
-                let mut start_point: &Node = &default_nodes[0];
+                // let mut start_point: &Node = &default_nodes[0];
+                // let mut old_final_tp_location = Vec::new();
                 let mut fastest_path: &Vec<String> = &all_permutation[0];
+                let mut final_tp_location = HashMap::new();
+
                 //TODO: check if tp back is faster
                 for node in default_nodes {
                     for (i, entry) in all_permutation.iter().enumerate() {
                         let mut index = 0;
-                        let mut weight = 0.0;
+                        let mut weight: f32 = 0.0;
+                        let mut old_required_tp = Vec::new();
+                        let mut required_tp = HashMap::new();
+
                         while index < entry.len() {
                             let end = entry[index].clone();
                             if index == 0 {
@@ -206,10 +212,32 @@ fn main() {
                                     }
                                 }
                             } else {
+                                //TODO: check here
+                                let mut tp_weight = INFINITY;
+                                let mut back_to_being_node = &default_nodes[0];
+                                for starting_node in default_nodes {
+                                    for edge in &starting_edge_list {
+                                        if edge.node1 == starting_node
+                                            && edge.node2.owner == end
+                                            && edge.weight + 5.0 < tp_weight
+                                        {
+                                            tp_weight = edge.weight;
+                                            back_to_being_node = edge.node1;
+                                            break;
+                                        }
+                                    }
+                                }
                                 let start = entry[index - 1].clone();
                                 for edge in &edge_list {
                                     if edge.node1.owner == start && edge.node2.owner == end {
+                                        if tp_weight < edge.weight {
+                                            weight += tp_weight;
+                                            //TODO: add info to tp
+                                            old_required_tp.push(index);
+                                            required_tp.insert(index, back_to_being_node);
+                                        } else {
                                         weight += edge.weight;
+                                        }
                                         break;
                                     }
                                 }
@@ -218,9 +246,12 @@ fn main() {
                             index += 1;
                         }
                         if weight < lowest_weight {
+                            println!("{:?}", old_required_tp);
                             lowest_weight = weight;
                             // lowest_weight_index = i;
-                            start_point = node;
+                            // old_final_tp_location = old_required_tp.clone();
+                            final_tp_location = required_tp.clone();
+                            // start_point = node;
                             fastest_path = entry;
                         }
                         total_weight.push(weight);
@@ -229,11 +260,20 @@ fn main() {
                 println!("****************");
                 println!("order to go for {}", place);
                 println!("start at");
-                println!("{start_point:?}");
-                for player in fastest_path {
+                //TODO: finish up this back to tp stuff
+                for (i, player) in fastest_path.iter().enumerate() {
+                    // if old_final_tp_location.len() >= 1 && old_final_tp_location[0] == i {
+                    //     println!("remember to tp back");
+                    //     old_final_tp_location.remove(0);
+                    // }
+                    if let Some(tp_location) = final_tp_location.get(&i) {
+                        println!("Teleport back to {}", tp_location.owner);
+                    }
                     println!("{}", player);
                 }
                 println!("****************");
+                // reset tp location
+                // old_final_tp_location = Vec::new();
             }
         }
     }
