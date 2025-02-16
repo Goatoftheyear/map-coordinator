@@ -91,29 +91,30 @@ fn main() {
     let mut opened_maps: HashMap<String, Vec<Node>> = HashMap::new();
     let mut teleport_locations: HashMap<String, Vec<Node>> = HashMap::new();
     let mut player_maps: HashMap<String, String> = HashMap::new();
+    // read file
     if let Ok(lines) = read_lines("./config/default_location.txt") {
         for line in lines.map_while(Result::ok) {
+            println!("{}", line);
             if line.is_empty() == false {
-                let mut line_splitted: Vec<String> =
-                    line.splitn(2, " ").map(|s| s.to_string()).collect();
-                let mut chars = line_splitted[0].chars();
-                for char in line_splitted[0].chars() {
-                    if char.is_alphabetic() == false {
-                        chars.next();
-                        continue;
-                    }
-                    line_splitted[0] = chars.as_str().to_string();
-                    break;
-                }
+                let line_splitted: Vec<String> = line.split("(").map(|s| s.to_string()).collect();
+                let name_with_location_name: Vec<String> = line_splitted[0]
+                    .trim()
+                    .split("-")
+                    .map(|s| s.to_string())
+                    .collect::<Vec<String>>();
                 let mut tp_coord = Vec::new();
-                if let Some(location_list) = teleport_locations.get(&line_splitted[0]) {
+                if let Some(location_list) =
+                    teleport_locations.get(&name_with_location_name[1].clone())
+                {
                     tp_coord = location_list.to_vec();
                 }
                 let no_space_coordinates = line_splitted[1].replace(" ", "");
-                let node = parse_to_node(no_space_coordinates, String::from("default"));
+                let node = parse_to_node(
+                    no_space_coordinates,
+                    String::from(&name_with_location_name[0]),
+                );
                 tp_coord.push(node);
-                teleport_locations.insert(line_splitted[0].clone(), tp_coord);
-                println!("{:?}", teleport_locations);
+                teleport_locations.insert(name_with_location_name[1].clone(), tp_coord);
             }
         }
     }
