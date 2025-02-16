@@ -129,7 +129,9 @@ fn main() {
             .read_line(&mut input)
             .expect("Error reading input");
         input = input.trim_end().to_string();
-        // println!("{:?}", input);
+        if input == "" {
+            continue;
+        }
         if input.trim() == "end" {
             println!("See ya!");
             break;
