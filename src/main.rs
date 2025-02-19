@@ -94,7 +94,6 @@ fn main() {
     // read file
     if let Ok(lines) = read_lines("./config/default_location.txt") {
         for line in lines.map_while(Result::ok) {
-            println!("{}", line);
             if line.is_empty() == false {
                 let line_splitted: Vec<String> = line.split("(").map(|s| s.to_string()).collect();
                 let name_with_location_name: Vec<String> = line_splitted[0]
@@ -123,7 +122,6 @@ fn main() {
         println!("Add person's coordinates. E.g. Kay Memoryland(17.5 , 46.3)");
         println!("Delete by typing just the name. E.g. Kay");
         println!("Entries are case sensitive");
-        //TODO: decide when and where the node calculation should be
         let mut input = String::new();
         io::stdin()
             .read_line(&mut input)
@@ -148,14 +146,12 @@ fn main() {
                 coordinates_with_name[1].replace(" ", "").clone(),
                 _splitted[0].clone(),
             );
-            println!("{:?}", node);
             let mut tp_coord = Vec::new();
             if let Some(location_list) = opened_maps.get(&coordinates_with_name[0].clone()) {
                 tp_coord = location_list.to_vec();
             }
             tp_coord.retain(|x| x.owner != node.owner);
             tp_coord.push(node);
-            println!("{:?}", tp_coord);
             opened_maps.insert(coordinates_with_name[0].clone(), tp_coord);
         }
 
@@ -185,22 +181,16 @@ fn main() {
                         }
                     }
                 }
-                // println!("{:?}", starting_edge_list);
-                //TODO: problem lies below this line
                 let all_permutation = find_permutation(current_player_map);
-                //TODO: use these permutations then move around the edges
                 // idea default -> 1st -> 2nd -> 3rd -> 4th
                 // e.g. start default to 1st -> start 1st to 2nd ... -> from 2nd last -> last
                 // reason for index equal -1 due to have to start without the player and
                 // and use index + 1 to cancel the loop
-                // let mut start_point: &Node = &default_nodes[0];
-                // let mut old_final_tp_location = Vec::new();
                 let mut fastest_path: &Vec<String> = &all_permutation[0];
                 let mut final_tp_location = HashMap::new();
 
-                //TODO: check if tp back is faster
                 for node in default_nodes {
-                    for (i, entry) in all_permutation.iter().enumerate() {
+                    for (_i, entry) in all_permutation.iter().enumerate() {
                         let mut index = 0;
                         let mut weight: f32 = 0.0;
                         let mut old_required_tp = Vec::new();
@@ -240,7 +230,7 @@ fn main() {
                                             old_required_tp.push(index);
                                             required_tp.insert(index, back_to_being_node);
                                         } else {
-                                        weight += edge.weight;
+                                            weight += edge.weight;
                                         }
                                         break;
                                     }
@@ -252,10 +242,7 @@ fn main() {
                         if weight < lowest_weight {
                             println!("{:?}", old_required_tp);
                             lowest_weight = weight;
-                            // lowest_weight_index = i;
-                            // old_final_tp_location = old_required_tp.clone();
                             final_tp_location = required_tp.clone();
-                            // start_point = node;
                             fastest_path = entry;
                         }
                         total_weight.push(weight);
@@ -264,20 +251,13 @@ fn main() {
                 println!("****************");
                 println!("order to go for {}", place);
                 println!("start at");
-                //TODO: finish up this back to tp stuff
                 for (i, player) in fastest_path.iter().enumerate() {
-                    // if old_final_tp_location.len() >= 1 && old_final_tp_location[0] == i {
-                    //     println!("remember to tp back");
-                    //     old_final_tp_location.remove(0);
-                    // }
                     if let Some(tp_location) = final_tp_location.get(&i) {
                         println!("Teleport back to {}", tp_location.owner);
                     }
                     println!("{}", player);
                 }
                 println!("****************");
-                // reset tp location
-                // old_final_tp_location = Vec::new();
             }
         }
     }
