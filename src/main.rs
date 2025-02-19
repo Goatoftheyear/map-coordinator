@@ -153,6 +153,7 @@ fn main() {
             if let Some(location_list) = opened_maps.get(&coordinates_with_name[0].clone()) {
                 tp_coord = location_list.to_vec();
             }
+            tp_coord.retain(|x| x.owner != node.owner);
             tp_coord.push(node);
             println!("{:?}", tp_coord);
             opened_maps.insert(coordinates_with_name[0].clone(), tp_coord);
