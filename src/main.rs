@@ -55,11 +55,6 @@ fn creating_edge<'a>(
         .sqrt()
             * 2.6;
     }
-    // Edge {
-    //     node1: starting_node,
-    //     node2: ending_node,
-    //     weight: distance,
-    // };
     edge_list.push(Edge {
         node1: starting_node,
         node2: ending_node,
@@ -142,7 +137,6 @@ fn main() {
         } else {
             let coordinates_with_name: Vec<String> =
                 _splitted[1].split("(").map(|s| s.to_string()).collect();
-            // println!("{:?}", coordinates_with_name);
             let node = parse_to_node(
                 coordinates_with_name[1].replace(" ", "").clone(),
                 _splitted[0].clone(),
@@ -194,7 +188,6 @@ fn main() {
                     for (_i, entry) in all_permutation.iter().enumerate() {
                         let mut index = 0;
                         let mut weight: f32 = 0.0;
-                        let mut old_required_tp = Vec::new();
                         let mut required_tp = HashMap::new();
 
                         while index < entry.len() {
@@ -228,8 +221,6 @@ fn main() {
                                     if edge.node1.owner == start && edge.node2.owner == end {
                                         if tp_weight < edge.weight {
                                             weight += tp_weight;
-                                            //TODO: add info to tp
-                                            old_required_tp.push(index);
                                             required_tp.insert(index, back_to_being_node);
                                         } else {
                                             weight += edge.weight;
@@ -242,7 +233,6 @@ fn main() {
                             index += 1;
                         }
                         if weight < lowest_weight {
-                            println!("{:?}", old_required_tp);
                             lowest_weight = weight;
                             final_tp_location = required_tp.clone();
                             fastest_path = entry;
@@ -267,4 +257,3 @@ fn main() {
 }
 // Yak T'el ( 16.6  , 12.4 )
 // Yak T'el ( 12.3  , 12.3 )
-//assumption after testing is 2.6 per 1.0 grid
