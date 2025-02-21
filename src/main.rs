@@ -52,7 +52,8 @@ fn creating_edge<'a>(
     if !back_to_starting_point {
         distance = ((starting_node.x - ending_node.x).powf(2.0)
             + (starting_node.y - ending_node.y).powf(2.0))
-        .sqrt();
+        .sqrt()
+            * 2.6;
     }
     // Edge {
     //     node1: starting_node,
@@ -199,9 +200,10 @@ fn main() {
                         while index < entry.len() {
                             let end = entry[index].clone();
                             if index == 0 {
-                                for edge in &edge_list {
+                                for edge in &starting_edge_list {
                                     if edge.node1 == node && edge.node2.owner == end {
                                         weight += edge.weight;
+                                        required_tp.insert(index, node);
                                         break;
                                     }
                                 }
@@ -250,7 +252,8 @@ fn main() {
                 }
                 println!("****************");
                 println!("order to go for {}", place);
-                println!("start at");
+                println!("start at {}", final_tp_location[&0].owner);
+                final_tp_location.remove(&0);
                 for (i, player) in fastest_path.iter().enumerate() {
                     if let Some(tp_location) = final_tp_location.get(&i) {
                         println!("Teleport back to {}", tp_location.owner);
