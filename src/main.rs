@@ -141,10 +141,19 @@ fn main() {
             continue;
         }
         let _splitted: &Vec<String> = &input.splitn(2, " ").map(|s| s.to_string()).collect();
-        player_maps.insert(_splitted[0].clone(), _splitted[1].clone());
+        // Assume if len 1 is delete
         if _splitted.len() == 1 {
-            opened_maps.remove(&input);
+            let mut temp_opened_maps: HashMap<String, Vec<Node>> = HashMap::new();
+            for (map_name, nodes) in &opened_maps {
+                println!("{},{:?}", map_name, nodes);
+                let mut temp_nodes = nodes.clone();
+                temp_nodes.retain(|x| x.owner != input);
+                temp_opened_maps.insert(map_name.to_string(), temp_nodes);
+            }
+            opened_maps = temp_opened_maps;
+            player_maps.remove(&input);
         } else {
+            player_maps.insert(_splitted[0].clone(), _splitted[1].clone());
             let coordinates_with_name: Vec<String> =
                 _splitted[1].split("(").map(|s| s.to_string()).collect();
             let node = parse_to_node(
@@ -169,6 +178,9 @@ fn main() {
             if let (Some(default_nodes), Some(maps)) =
                 (teleport_locations.get(place), opened_maps.get(place))
             {
+                if maps.len() == 0 {
+                    continue;
+                }
                 let mut current_player_map = Vec::new();
                 for map in maps.clone() {
                     current_player_map.push(map.owner);
