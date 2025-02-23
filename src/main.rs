@@ -140,6 +140,11 @@ fn main() {
             help_text();
             continue;
         }
+        if input.trim() == "reset" {
+            player_maps = HashMap::new();
+            opened_maps = HashMap::new();
+            continue;
+        }
         let _splitted: &Vec<String> = &input.splitn(2, " ").map(|s| s.to_string()).collect();
         // Assume if len 1 is delete
         if _splitted.len() == 1 {
