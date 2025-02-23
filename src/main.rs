@@ -61,6 +61,7 @@ fn creating_edge<'a>(
         weight: distance,
     })
 }
+
 fn recursion_permutation(
     index: usize,
     players: &mut Vec<String>,
@@ -76,14 +77,23 @@ fn recursion_permutation(
         players.swap(index, i);
     }
 }
+
 fn find_permutation(mut players: Vec<String>) -> Vec<Vec<String>> {
     let mut permutations = Vec::<Vec<String>>::new();
     recursion_permutation(0, &mut players, &mut permutations);
 
     permutations
 }
+
+fn help_text() -> () {
+    println!("You can right click to the prompt to paste your latest copy entry");
+    println!("Add person's coordinates. E.g. WoL Urqopacha(17.5 , 46.3)");
+    println!("Delete by typing just the name. E.g. WoL");
+    println!("Entries are case sensitive");
+}
 fn main() {
     println!("Hello!");
+    help_text();
     let mut opened_maps: HashMap<String, Vec<Node>> = HashMap::new();
     let mut teleport_locations: HashMap<String, Vec<Node>> = HashMap::new();
     let mut player_maps: HashMap<String, String> = HashMap::new();
@@ -114,10 +124,6 @@ fn main() {
         }
     }
     loop {
-        println!("You can right click to the prompt to paste your latest copy entry");
-        println!("Add person's coordinates. E.g. Kay Memoryland(17.5 , 46.3)");
-        println!("Delete by typing just the name. E.g. Kay");
-        println!("Entries are case sensitive");
         let mut input = String::new();
         io::stdin()
             .read_line(&mut input)
@@ -129,6 +135,10 @@ fn main() {
         if input.trim() == "end" {
             println!("See ya!");
             break;
+        }
+        if input.trim() == "help" {
+            help_text();
+            continue;
         }
         let _splitted: &Vec<String> = &input.splitn(2, " ").map(|s| s.to_string()).collect();
         player_maps.insert(_splitted[0].clone(), _splitted[1].clone());
