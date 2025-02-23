@@ -90,6 +90,10 @@ fn help_text() -> () {
     println!("Add person's coordinates. E.g. WoL Urqopacha(17.5 , 46.3)");
     println!("Delete by typing just the name. E.g. WoL");
     println!("Entries are case sensitive");
+    println!("Commands: ");
+    println!("help: send help message");
+    println!("reset: remove all current entry");
+    println!("end: end the program");
 }
 fn main() {
     println!("Hello!");
