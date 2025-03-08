@@ -96,6 +96,15 @@ fn help_text() -> () {
     println!("end: end the program");
 }
 
+fn remove_existing_entry(opened_maps: &mut HashMap<String, Vec<Node>>, owner_name: &String) {
+    let temp_opened_maps: HashMap<String, Vec<Node>> = opened_maps.clone();
+    for (map_name, nodes) in temp_opened_maps {
+        let mut temp_nodes = nodes.clone();
+        temp_nodes.retain(|x| x.owner != owner_name.clone());
+        opened_maps.insert(map_name.to_string(), temp_nodes);
+    }
+}
+
 fn main() {
     println!("Hello!");
     help_text();
@@ -153,22 +162,10 @@ fn main() {
         let _splitted: &Vec<String> = &input.splitn(2, " ").map(|s| s.to_string()).collect();
         // Assume if len 1 is delete
         if _splitted.len() == 1 {
-            let mut temp_opened_maps: HashMap<String, Vec<Node>> = HashMap::new();
-            for (map_name, nodes) in &opened_maps {
-                let mut temp_nodes = nodes.clone();
-                temp_nodes.retain(|x| x.owner != input);
-                temp_opened_maps.insert(map_name.to_string(), temp_nodes);
-            }
-            opened_maps = temp_opened_maps;
+            remove_existing_entry(&mut opened_maps, &input);
             player_maps.remove(&input);
         } else {
-            let mut temp_opened_maps: HashMap<String, Vec<Node>> = HashMap::new();
-            for (map_name, nodes) in &opened_maps {
-                let mut temp_nodes = nodes.clone();
-                temp_nodes.retain(|x| x.owner != _splitted[0].clone());
-                temp_opened_maps.insert(map_name.to_string(), temp_nodes);
-            }
-            opened_maps = temp_opened_maps;
+            remove_existing_entry(&mut opened_maps, &input);
 
             player_maps.insert(_splitted[0].clone(), _splitted[1].clone());
             let coordinates_with_name: Vec<String> =
