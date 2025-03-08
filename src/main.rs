@@ -193,6 +193,7 @@ fn main() {
                 (teleport_locations.get(place), opened_maps.get(place))
             {
                 if maps.len() == 0 {
+                    println!("There is no opened map currently");
                     continue;
                 }
                 let mut current_player_map = Vec::new();
@@ -287,6 +288,9 @@ fn main() {
                     println!("{}", player);
                 }
                 println!("****************");
+            } else {
+                println!("Error calculating due to entry's does not exist.");
+                println!("Please try again.");
             }
         }
     }
