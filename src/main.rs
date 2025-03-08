@@ -95,6 +95,7 @@ fn help_text() -> () {
     println!("reset: remove all current entry");
     println!("end: end the program");
 }
+
 fn main() {
     println!("Hello!");
     help_text();
@@ -154,7 +155,6 @@ fn main() {
         if _splitted.len() == 1 {
             let mut temp_opened_maps: HashMap<String, Vec<Node>> = HashMap::new();
             for (map_name, nodes) in &opened_maps {
-                println!("{},{:?}", map_name, nodes);
                 let mut temp_nodes = nodes.clone();
                 temp_nodes.retain(|x| x.owner != input);
                 temp_opened_maps.insert(map_name.to_string(), temp_nodes);
@@ -162,6 +162,14 @@ fn main() {
             opened_maps = temp_opened_maps;
             player_maps.remove(&input);
         } else {
+            let mut temp_opened_maps: HashMap<String, Vec<Node>> = HashMap::new();
+            for (map_name, nodes) in &opened_maps {
+                let mut temp_nodes = nodes.clone();
+                temp_nodes.retain(|x| x.owner != _splitted[0].clone());
+                temp_opened_maps.insert(map_name.to_string(), temp_nodes);
+            }
+            opened_maps = temp_opened_maps;
+
             player_maps.insert(_splitted[0].clone(), _splitted[1].clone());
             let coordinates_with_name: Vec<String> =
                 _splitted[1].split("(").map(|s| s.to_string()).collect();
