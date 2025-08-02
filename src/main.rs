@@ -252,7 +252,6 @@ fn main() {
                                     }
                                 }
                             } else {
-                                //TODO: check here
                                 let mut tp_weight = INFINITY;
                                 let mut back_to_being_node = &default_nodes[0];
                                 for starting_node in default_nodes {
@@ -309,5 +308,3 @@ fn main() {
         }
     }
 }
-// Yak T'el ( 16.6  , 12.4 )
-// Yak T'el ( 12.3  , 12.3 )
