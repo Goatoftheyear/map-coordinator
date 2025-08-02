@@ -173,8 +173,17 @@ fn main() {
             remove_existing_entry(&mut opened_maps, &input);
 
             player_maps.insert(_splitted[0].clone(), _splitted[1].clone());
-            let coordinates_with_name: Vec<String> =
+            let mut coordinates_with_name_temp: Vec<String> =
                 _splitted[1].split("(").map(|s| s.to_string()).collect();
+            let allowed_characters = "' -";
+            coordinates_with_name_temp[0] = coordinates_with_name_temp[0]
+                .trim_end()
+                .to_string()
+                .chars()
+                .filter(|s| s.is_alphanumeric() || allowed_characters.contains(*s))
+                .collect();
+            let coordinates_with_name: Vec<String> = coordinates_with_name_temp.to_vec();
+            // coordinates_with_name
             let node = parse_to_node(
                 coordinates_with_name[1].replace(" ", "").clone(),
                 _splitted[0].clone(),
