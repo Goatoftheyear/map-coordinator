@@ -62,31 +62,31 @@ fn creating_edge<'a>(
     })
 }
 
-fn permutation(players: &mut Vec<String>, permutations: &mut Vec<Vec<String>>) -> () {
-    if players.len() == 1 {
-        permutations.push(players.clone());
-        return;
-    }
-    let mut temp_players = players.to_vec();
-    let mut permutation_amount = 1;
-    for i in 1..(players.len() + 1) {
-        permutation_amount = permutation_amount * i;
-    }
-    let mut iterator = 0;
-    for _i in 1..permutation_amount {
-        temp_players.swap(iterator, iterator + 1);
-        permutations.push(temp_players.clone());
-        iterator += 1;
-        if iterator == temp_players.len() - 1 {
-            iterator = 0;
+fn permutation(
+    players: &mut Vec<String>,
+    permutations: &mut Vec<Vec<String>>,
+    index_to_loop: usize,
+) -> () {
+    //base case
+    if index_to_loop == players.len() {
+        permutations.push(players.to_vec())
+    } else {
+        //recursive case
+        for i in index_to_loop..players.len() {
+            // at the start swap by itself to get the 1st 1 going
+            // then swap the 1st 1, then swap back so to prepare the next swap
+            players.swap(i, index_to_loop);
+            permutation(players, permutations, index_to_loop + 1);
+            // make sure to swap back to prep for next swap
+            players.swap(index_to_loop, i);
         }
     }
 }
 
 fn find_permutation(mut players: Vec<String>) -> Vec<Vec<String>> {
     let mut permutations = Vec::<Vec<String>>::new();
-    permutation(&mut players, &mut permutations);
-
+    let starting_point: usize = 0;
+    permutation(&mut players, &mut permutations, starting_point);
     permutations
 }
 
